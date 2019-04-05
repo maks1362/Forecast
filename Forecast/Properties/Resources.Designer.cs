@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Prognoz.Properties
+namespace Forecast.Properties
 {
 
 
