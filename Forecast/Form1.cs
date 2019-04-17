@@ -22,9 +22,9 @@ namespace Forecast
     {   /// <summary>
         /// Список способов прогноза
         /// </summary>
-        public IList<string> forecasts = new List<string>
+        public static IList<string> forecasts = new List<string>
             {
-                { "по средним значениям" },
+                { "по средним значениям" },//cattle(скот)
                 { "стационарного ряда" },
                 { "по уравнению тренда" }
                //     new Element() { Symbol="Sc", Name="Scandium", AtomicNumber=21}},
@@ -36,7 +36,7 @@ namespace Forecast
             ComboBoxMethod.DataSource = forecasts;
             var a = ComboBoxMethod.SelectedIndex; //Выбранный способ прогноза(индекс)
 
-            Forecast.Data data = new Data();
+            Data data = new Data("FileName");
         }
     }
 }
