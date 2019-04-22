@@ -74,128 +74,128 @@ namespace Forecast
     /// </summary>
     class Data
     {
+        /// <summary>
+        /// Возвращает строку оставив только цифры
+        /// </summary>
+        /// <param name="str">Изменяемая строка</param>
+        /// <returns></returns>
+        public static string TrimLettersAndSemicolon(string str)
+        {
+            //string result;
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (!Char.IsDigit(str[i]))
+                    str = str.Remove(i, 1);
+            }
+            return str;
+        }
 
         private Dictionary<int, Element> DataCol { get; }
 
-        public int getKey(int i)
-        {
-            return DataCol.Keys.ElementAt(i);
-        }
+        //public int getKey(int i)
+        //{
+        //    return DataCol.Keys.ElementAt(i);
+        //}
+        //public void setKey(int i)
+        //{
+        //    //DataCol DataCol.Keys.ElementAt(i) = 
+        //}
         public int Count()
         {
             return DataCol.Count;
         }
-        public void setKey(int i)
+        public double[] GetNums()
         {
-            //DataCol DataCol.Keys.ElementAt(i) = 
+            double[] result = new double[this.DataCol.Count];
+            for (int i=0; i < result.Length; i++)
+            {
+                result[i] = this[i].Value.Num;
+            }
+            return result;
         }
 
         public KeyValuePair<int, Element> this[int index] => this.DataCol.ElementAt(index);
-
+        public Dictionary<int, Element>.KeyCollection Keys => this.DataCol.Keys;
+        public Dictionary<int, Element>.ValueCollection Values => this.DataCol.Values;
 
         public Data(string FileName)
         {
             DataCol = ReadFromFile(FileName);
             CalcIndicators();
         }
-
+        /// <summary>
+        /// Чтение данных из файла
+        /// </summary>
+        /// <param name="FileName">Путь к файлу для чтения</param>
         private Dictionary<int, Element> ReadFromFile(string FileName) //FileName - Путь к файлу
         {
             Dictionary<int, Element> result = new Dictionary<int, Element>();
 
-            //Диме: провести проверку на правильность данных и занести их в коллекцию с помощью метода ниже
-            OpenFileDialog openFileDialog1 = new OpenFileDialog
+            try
             {
-                //InitialDirectory = @"C:\users\qq\desktop\tabul\",
-                DefaultExt = "*.csv",
-                Filter = "Files (*.csv)|*.csv"
-            };
-
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                try
+                string[] rows = File.ReadAllLines(FileName);//openFileDialog1.FileName);
+                if (rows.Length > 0)
                 {
-                    string[] rows = File.ReadAllLines(openFileDialog1.FileName);
-                    if (rows.Length > 0)
+                    //Временные переменные
+                    int key;
+                    double value = 0;
+                    Element elem;
+                    string[] row;
+                    string erMes = "";
+                    string misMes = "";
+                    //
+                    for (int i = 0; i < rows.Length; i++)//Чтение из файла
                     {
-                        //Временные переменные
-                        int key;
-                        double value = 0;
-                        Element elem;
-                        string[] row;
-                        string erMes = "";
-                        string misMes = "";
-                        //
-                        for (int i = 0; i < rows.Length; i++)//Чтение из файла
+                        row = rows[i].Split(';');
+                        if (!Int32.TryParse(row[0], out key))//Проверка ключа
                         {
-                            row = rows[i].Split(';');
-                            if (!Int32.TryParse(row[0], out key))
+                            if (Double.TryParse(row[0], out value))//Проверка на дробное число вместо целого
                             {
-                                if (Double.TryParse(row[0], out value))
-                                {
-                                    erMes += erMes += '\"' + rows[i] + "\"Дробное значение в качестве года!\n";
-                                    continue;
-                                }
-                                if (!Int32.TryParse(TrimLettersAndSemicolon(row[0]), out key))
-                                {
-                                    erMes += '\"' + rows[i] + "\"\n";
-                                    continue;//Пропускаю заполнение этого значения ряда
-                                }
-                                else
-                                    misMes += '\"'+ rows[i] +"\":   " +"значение "+ " \"" + row[0] +"\" "+ " преобразовано в " +'\"'+ key.ToString() +"\"\n";
+                                erMes += erMes += '\"' + rows[i] + "\"Дробное значение в качестве года!\n";
+                                continue;
                             }
-
-                            if (!Double.TryParse(row[1], out value))
+                            if (!Int32.TryParse(TrimLettersAndSemicolon(row[0]), out key))
                             {
-                                if (!Double.TryParse(TrimLettersAndSemicolon(row[1]), out value))
-                                {
-                                    erMes += '\"' + rows[i] + "\"\n";
-                                    continue;
-                                }
-                                else
-                                    misMes += '\"' + rows[i] + "\":   " + "значение " + " \"" + row[1] + "\" " + " преобразовано в " + '\"' + value.ToString() + "\"\n";
+                                erMes += '\"' + rows[i] + "\"\n";
+                                continue;//Пропускаю заполнение этого значения ряда
                             }
-                            
-                            elem = new Element(value);
-                            result.Add(key, elem);
-
-                            //gridView.Columns.Add();
+                            else
+                                misMes += '\"'+ rows[i] +"\":   " +"значение "+ " \"" + row[0] +"\" "+ " преобразовано в " +'\"'+ key.ToString() +"\"\n";
                         }
-                        if (misMes != "")
-                            MessageBox.Show("Автоисправление входных данных:\n" + misMes, "Внимание");
-                        if (erMes != "")
-                            MessageBox.Show("Значения не приняты во внимание:\n" + erMes, "Ошибки в чтении данных");
+
+                        if (!Double.TryParse(row[1], out value))//Проверка значения
+                        {
+                            if (!Double.TryParse(TrimLettersAndSemicolon(row[1]), out value))
+                            {
+                                erMes += '\"' + rows[i] + "\"\n";
+                                continue;
+                            }
+                            else
+                                misMes += '\"' + rows[i] + "\":   " + "значение " + " \"" + row[1] + "\" " + " преобразовано в " + '\"' + value.ToString() + "\"\n";
+                        }
+                        elem = new Element(value);
+                        result.Add(key, elem);
+
                     }
-                    else MessageBox.Show("Файл пуст", "Ошибка");
+                    if (misMes != "")
+                        MessageBox.Show("Автоисправление входных данных:\n" + misMes, "Внимание");
+                    if (erMes != "")
+                        MessageBox.Show("Значения не приняты во внимание:\n" + erMes, "Ошибки в чтении данных");
+                }
+                else MessageBox.Show("Файл пуст", "Ошибка");
                     
-                }
-                catch (IOException ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
 
             return result;
-        }
-        /// <summary>
-        /// Возвращает строку оставив только цифры
-        /// </summary>
-        /// <param name="str">Изменяемая строка</param>
-        /// <returns></returns>
-        static public string TrimLettersAndSemicolon(string str)
-        {
-            //string result;
-
-            for (int i=0; i< str.Length; i++)
-            {
-                if (!Char.IsDigit(str[i]))
-                    str = str.Remove(i, 1);
-            }
-            return str;
         }
 
         private void CalcIndicators()
