@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,17 +48,19 @@
             this.form1BindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.dataBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.ShowChart = new System.Windows.Forms.Button();
+            this.PeriodNumeric = new System.Windows.Forms.NumericUpDown();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.form1BindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataBindingSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PeriodNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -121,13 +123,14 @@
             // forecastToolStripMenuItem
             // 
             this.forecastToolStripMenuItem.Name = "forecastToolStripMenuItem";
-            this.forecastToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.forecastToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.forecastToolStripMenuItem.Text = "Спрогнозировать";
+            this.forecastToolStripMenuItem.Click += new System.EventHandler(this.forecast_Click);
             // 
             // clearToolStripMenuItem
             // 
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.clearToolStripMenuItem.Text = "Очистить";
             // 
             // aboutToolStripMenuItem
@@ -160,7 +163,7 @@
             // 
             this.ComboBoxMethod.DataSource = this.form1BindingSource;
             this.ComboBoxMethod.FormattingEnabled = true;
-            this.ComboBoxMethod.Location = new System.Drawing.Point(133, 63);
+            this.ComboBoxMethod.Location = new System.Drawing.Point(12, 82);
             this.ComboBoxMethod.Name = "ComboBoxMethod";
             this.ComboBoxMethod.Size = new System.Drawing.Size(185, 21);
             this.ComboBoxMethod.TabIndex = 3;
@@ -172,7 +175,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(409, 58);
+            this.label1.Location = new System.Drawing.Point(12, 201);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(104, 13);
             this.label1.TabIndex = 4;
@@ -181,20 +184,11 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(30, 66);
+            this.label2.Location = new System.Drawing.Point(9, 66);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(97, 13);
             this.label2.TabIndex = 5;
             this.label2.Text = "Способ прогноза:";
-            // 
-            // comboBox2
-            // 
-            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(519, 58);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(121, 150);
-            this.comboBox2.TabIndex = 6;
             // 
             // listBox1
             // 
@@ -203,7 +197,7 @@
             "1",
             "2",
             "3"});
-            this.listBox1.Location = new System.Drawing.Point(393, 133);
+            this.listBox1.Location = new System.Drawing.Point(14, 234);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(120, 56);
             this.listBox1.TabIndex = 7;
@@ -214,53 +208,83 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(12, 232);
+            this.dataGridView1.Location = new System.Drawing.Point(12, 315);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(963, 206);
+            this.dataGridView1.Size = new System.Drawing.Size(963, 123);
             this.dataGridView1.TabIndex = 8;
             // 
             // chart1
             // 
             this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.chart1.BorderlineColor = System.Drawing.Color.Maroon;
-            this.chart1.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
-            chartArea1.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea1.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea1.AxisX.IntervalOffsetType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Years;
-            chartArea1.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea1.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(675, 24);
+            this.chart1.BorderlineColor = System.Drawing.Color.Gray;
+            this.chart1.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
+            chartArea2.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea2.AxisX.IntervalOffsetType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+            chartArea2.AxisX.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+            chartArea2.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.chart1.Legends.Add(legend2);
+            this.chart1.Location = new System.Drawing.Point(219, 24);
             this.chart1.Name = "chart1";
-            this.chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.SeaGreen;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            series1.Legend = "Legend1";
-            series1.Name = "Serie";
-            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
-            this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(300, 202);
-            this.chart1.TabIndex = 9;
+            this.chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Chocolate;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Legend = "Legend1";
+            series2.Name = "Serie";
+            series2.YValuesPerPoint = 7;
+            this.chart1.Series.Add(series2);
+            this.chart1.Size = new System.Drawing.Size(756, 285);
+            this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
             // 
             // dataBindingSource
             // 
             this.dataBindingSource.DataSource = typeof(Forecast.Data);
             // 
+            // ShowChart
+            // 
+            this.ShowChart.Location = new System.Drawing.Point(7, 174);
+            this.ShowChart.Name = "ShowChart";
+            this.ShowChart.Size = new System.Drawing.Size(127, 23);
+            this.ShowChart.TabIndex = 10;
+            this.ShowChart.Text = "Спрогнозировать";
+            this.ShowChart.UseVisualStyleBackColor = true;
+            this.ShowChart.Click += new System.EventHandler(this.forecast_Click);
+            // 
+            // PeriodNumeric
+            // 
+            this.PeriodNumeric.Location = new System.Drawing.Point(12, 109);
+            this.PeriodNumeric.Maximum = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            this.PeriodNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.PeriodNumeric.Name = "PeriodNumeric";
+            this.PeriodNumeric.Size = new System.Drawing.Size(120, 20);
+            this.PeriodNumeric.TabIndex = 11;
+            this.PeriodNumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(987, 450);
+            this.Controls.Add(this.PeriodNumeric);
+            this.Controls.Add(this.ShowChart);
             this.Controls.Add(this.chart1);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.listBox1);
-            this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ComboBoxMethod);
@@ -277,6 +301,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PeriodNumeric)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -299,12 +324,13 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolStripComboBox methodToolStrip;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.BindingSource form1BindingSource;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.BindingSource dataBindingSource;
+        private System.Windows.Forms.Button ShowChart;
+        private System.Windows.Forms.NumericUpDown PeriodNumeric;
     }
 }
 

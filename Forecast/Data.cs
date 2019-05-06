@@ -14,7 +14,6 @@ namespace Forecast
     public class Element
     {
         //public int Year { get; set; }
-
         public double Num { get; set; }
         /// <summary>
         /// Абсолютный прирост цепной(разница с предыдущим)
@@ -72,7 +71,7 @@ namespace Forecast
     /// Хранит данные временного ряда и 
     /// аналитические показатели
     /// </summary>
-    class Data
+    public class Data
     {
         /// <summary>
         /// Возвращает строку оставив только цифры
@@ -101,6 +100,10 @@ namespace Forecast
         //{
         //    //DataCol DataCol.Keys.ElementAt(i) = 
         //}
+        /// <summary>
+        /// Возвращает количество элементов в коллекции
+        /// </summary>
+        /// <returns></returns>
         public int Count()
         {
             return DataCol.Count;
@@ -114,7 +117,6 @@ namespace Forecast
             }
             return result;
         }
-
         public KeyValuePair<int, Element> this[int index] => this.DataCol.ElementAt(index);
         public Dictionary<int, Element>.KeyCollection Keys => this.DataCol.Keys;
         public Dictionary<int, Element>.ValueCollection Values => this.DataCol.Values;
@@ -152,7 +154,7 @@ namespace Forecast
                         {
                             if (Double.TryParse(row[0], out value))//Проверка на дробное число вместо целого
                             {
-                                erMes += erMes += '\"' + rows[i] + "\"Дробное значение в качестве года!\n";
+                                erMes += erMes += '\"' + rows[i] + "\"Дробное или слишком большое значение в качестве года!\n";
                                 continue;
                             }
                             if (!Int32.TryParse(TrimLettersAndSemicolon(row[0]), out key))

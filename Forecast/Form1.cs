@@ -10,24 +10,22 @@ using System.Windows.Forms;
 
 namespace Forecast
 {
-    
     /*static class ForecastMethod
     {
         //static 
     }*/
 
-
-
     public partial class Form1 : Form
     {
         private Data data;
-        private DataGridView grid;
+        //private DataGridView grid;
         /// <summary>
         /// Список способов прогноза
         /// </summary>
         public static IList<string> forecasts = new List<string>
             {
-                { "по средним значениям" },//cattle(скот)
+                { "по среднему абсолютному приросту" },
+                { "по среднему коэффициенту роста" },
                 { "стационарного ряда" },
                 { "по уравнению тренда" }
                //     new Element() { Symbol="Sc", Name="Scandium", AtomicNumber=21}},
@@ -67,18 +65,28 @@ namespace Forecast
 
         public Form1()
         {
-            InitializeComponent();
+            try
+            {
+                InitializeComponent();
+
+                ComboBoxMethod.DataSource = forecasts;
+
+                CreateGrid(dataGridView1);
+                //grid = dataGridView1;//глобальная переменная
+
+                OpenFile("D:\\Учёба(!)\\Инструменталки(Ивашк)\\Лаб_6 (Проект)\\Исходные данные\\врем_ряд_1.csv");
+
+                //OpenToolStripMenuItem_Click(null, null);
+                //chart1.Series.Add("ser");
+                /*chartForm = new ChartForm(data);
+                chartForm.Show();*/
+                //chart1.Series[0].X
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
             
-            ComboBoxMethod.DataSource = forecasts;
-            var a = ComboBoxMethod.SelectedIndex; //Выбранный способ прогноза(индекс)
-
-            CreateGrid(dataGridView1);
-            grid = dataGridView1;//глобальная переменная
-
-            OpenFile("D:\\Учёба(!)\\Инструменталки(Ивашк)\\Лаб_6 (Проект)\\Исходные данные\\врем_ряд_1.csv");
-            //OpenToolStripMenuItem_Click(null, null);
-            //chart1.Series.Add("ser");
-            chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
         }
 
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
@@ -93,13 +101,13 @@ namespace Forecast
             if (!(myOpenFileDialog.ShowDialog() == DialogResult.OK))
                 return;
             data = new Data(myOpenFileDialog.FileName);
-            grid.Rows.Clear();//очищаю таблицу
+            dataGridView1.Rows.Clear();//очищаю таблицу
             string[] row = new string[11];
             DataGridViewRow r = new DataGridViewRow();
             for(int i=0; i< data.Count(); i++)
             {
-                grid.Rows.Insert(
-                    grid.RowCount-1, //В какое место таблицы вставить строку
+                dataGridView1.Rows.Insert(
+                    dataGridView1.RowCount-1, //В какое место таблицы вставить строку
                     data[i].Key, 
                     data[i].Value.Num, 
                     data[i].Value.IncreaseOrder, 
@@ -119,13 +127,13 @@ namespace Forecast
         {
 
             data = new Data(FileName);
-            grid.Rows.Clear();//очищаю таблицу
+            dataGridView1.Rows.Clear();//очищаю таблицу
             string[] row = new string[11];
             DataGridViewRow r = new DataGridViewRow();
             for (int i = 0; i < data.Count(); i++)//Заполняю DataGridView
             {
-                grid.Rows.Insert(
-                    grid.RowCount - 1, //В какое место таблицы вставить строку
+                dataGridView1.Rows.Insert(
+                    dataGridView1.RowCount - 1, //В какое место таблицы вставить строку
                     data[i].Key,
                     data[i].Value.Num,
                     data[i].Value.IncreaseOrder,
@@ -140,5 +148,88 @@ namespace Forecast
                 );
             }
         }//Открыть файл и заполнить DataGridView
+
+        private void forecast_Click(object sender, EventArgs e)
+        {
+            //var a = ComboBoxMethod.SelectedIndex; //Выбранный способ прогноза(индекс)
+            switch (ComboBoxMethod.SelectedIndex)
+            {
+                case 0://абсолютн
+                    forecastAbs();
+                    break;
+                case 1://геометр
+                    forecastGeom();
+                    break;
+                case 2:
+
+                    break;
+                case 3:
+
+                    break;
+            }
+
+
+        }//Прогноз
+
+        private void forecastAbs()
+        {
+            if (data != null)
+            {
+                chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                int periodYprezdenia = (Int32)PeriodNumeric.Value;
+                double sredAbsIncrease = 0;
+                double[] newNums = new double[periodYprezdenia];
+                if (data.Count() + 1 != dataGridView1.Rows.Count)
+                    //for (int i = data.Count(); i < dataGridView1.Rows.Count; i++)
+                    while (data.Count() + 1 != dataGridView1.Rows.Count)
+                    {
+                        dataGridView1.Rows.RemoveAt(data.Count());
+                    }//Очистка лишних строк в таблице
+                for (int i = 0; i < data.Count(); i++)
+                {
+                    sredAbsIncrease += data[i].Value.IncreaseOrder;
+                }//Средний абсолютный прирост цепной
+
+                sredAbsIncrease = (sredAbsIncrease / data.Count()) - 1;
+                for (int i = 0, k = 1; i < periodYprezdenia; i++)
+                {
+                    newNums[i] = data[data.Count() - 1].Value.Num + sredAbsIncrease * k;
+                    dataGridView1.Rows.Add(data[data.Count() - 1].Key + k, newNums[i]);
+                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + k, newNums[i]);
+                    k++;
+                }
+            }
+        }
+
+        private void forecastGeom()
+        {
+            if (data != null)
+            {
+                chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+
+                int periodYprezdenia = (Int32)PeriodNumeric.Value;
+                double sredGrows = 1;
+                double[] newNums = new double[periodYprezdenia];
+                if (data.Count() + 1 != dataGridView1.Rows.Count)
+                    //for (int i = data.Count(); i < dataGridView1.Rows.Count; i++)
+                    while (data.Count() + 1 != dataGridView1.Rows.Count)
+                    {
+                        dataGridView1.Rows.RemoveAt(data.Count());
+                    }//Очистка лишних строк в таблице
+                for (int i = 1; i < data.Count(); i++)
+                {
+                    sredGrows *= data[i].Value.RateGrowthOrder;
+                    //sredAbsGrows += data[i].Value.IncreaseOrder;
+                }//Средний абсолютный прирост цепной
+                sredGrows = Math.Pow(sredGrows, 1.0 / data.Count()); //
+                for (int i = 0, k = 1; i < periodYprezdenia; i++)
+                {
+                    newNums[i] = data[data.Count() - 1].Value.Num * Math.Pow(sredGrows, k); //
+                    dataGridView1.Rows.Add(data[data.Count() - 1].Key + k, newNums[i]);
+                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + k, newNums[i]);
+                    k++;
+                }
+            }
+        }
     }
 }
