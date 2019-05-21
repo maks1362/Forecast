@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using System.Web.UI.DataVisualization.Charting; //Критерий фишера
+
 namespace Forecast
 {
     /*static class ForecastMethod
@@ -74,7 +76,10 @@ namespace Forecast
                 CreateGrid(dataGridView1);
                 //grid = dataGridView1;//глобальная переменная
 
-                OpenFile("D:\\Учёба(!)\\Инструменталки(Ивашк)\\Лаб_6 (Проект)\\Исходные данные\\врем_ряд_1.csv");
+                OpenFile("D:\\kl\\вавкп.csv");
+                ComboBoxMethod.SelectedIndex = 3;
+
+                forecast_Click(null, null);
 
                 //OpenToolStripMenuItem_Click(null, null);
                 //chart1.Series.Add("ser");
@@ -155,13 +160,13 @@ namespace Forecast
             switch (ComboBoxMethod.SelectedIndex)
             {
                 case 0://абсолютн
-                    forecastAbs();
+                    ForecastAbs();
                     break;
                 case 1://геометр
-                    forecastGeom();
+                    ForecastGeom();
                     break;
                 case 2:
-
+                    ForecastStat();
                     break;
                 case 3:
 
@@ -171,7 +176,7 @@ namespace Forecast
 
         }//Прогноз
 
-        private void forecastAbs()
+        private void ForecastAbs()
         {
             if (data != null)
             {
@@ -201,7 +206,7 @@ namespace Forecast
             }
         }
 
-        private void forecastGeom()
+        private void ForecastGeom()
         {
             if (data != null)
             {
@@ -230,6 +235,117 @@ namespace Forecast
                     k++;
                 }
             }
+        }
+
+        private void ForecastStat()
+        {
+            if (data != null)
+            {
+                { 
+                    double avarLvl1 = 0;//Средний уровень половины ряда
+                    double avarLvl2 = 0;
+                    int countNum1 = (data.Count() / 2);
+                    int countNum2 = (data.Count() - data.Count() / 2);
+                    {/*if (data.Count() % 2 == 0)
+                    {
+                        for (int i = 0; i < data.Count() / 2; i++)
+                        {
+                            avarLvl1 += data[i].Value.Num;
+                        }
+                        for (int i = data.Count() / 2; i < data.Count(); i++)
+                        {
+                            avarLvl2 += data[i].Value.Num;
+                        }
+                        avarLvl1 = avarLvl1 / (data.Count() / 2);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < data.Count() / 2 + 1; i++)
+                        {
+                            avarLvl1 += data[i].Value.Num;
+                        }
+                        for (int i = data.Count() / 2 + 1; i < data.Count(); i++)
+                        {
+                            avarLvl2 += data[i].Value.Num;
+                        }
+                        avarLvl1 = avarLvl1 / (data.Count() / 2+1);
+                    }
+                    avarLvl2 = avarLvl2 / (data.Count() / 2);*/
+                    }//Старый способ
+                    for (int i = 0; i < data.Count() / 2; i++)
+                    {
+                        avarLvl1 += data[i].Value.Num;
+                    }
+                    for (int i = data.Count() / 2; i < data.Count(); i++)
+                    {
+                        avarLvl2 += data[i].Value.Num;
+                    }
+                    avarLvl1 = avarLvl1 / countNum1;
+                    avarLvl2 = avarLvl2 / countNum2;
+
+
+                    double sigma1 = 0;//Средне квадр отклонение для половины ряда
+                    double sigma2 = 0;
+                    for (int i = 0; i < data.Count() / 2; i++)
+                    {
+                        sigma1 += Math.Pow(data[i].Value.Num - avarLvl1, 2);
+                    }
+                    for (int i = data.Count() / 2; i < data.Count(); i++)
+                    {
+                        sigma2 += Math.Pow(data[i].Value.Num - avarLvl2, 2);
+                    }
+                    sigma1 = Math.Sqrt(sigma1 / (countNum1-1));
+                    sigma2 = Math.Sqrt(sigma2 / (countNum2-1));
+
+                    {
+                    /*if (sigma1 > sigma2)
+                    {
+                        fisher = sigma1 / sigma2;
+                    }
+                    else
+                    {
+                        fisher = sigma2 / sigma1;
+                    }*/
+                    }//Старый способ вычисления критерия фишера 
+                    double fisherMy = (sigma1 > sigma2) ? (sigma1/sigma2) : (sigma2/sigma1);//Критерий Фишера
+
+
+                    Chart chart1 = new Chart();//Нужен для формул статистики
+                    var fisherTable = chart1.DataManipulator.Statistics.InverseFDistribution(0.05, countNum1-1, countNum2-1);//Формула табличного значения Фишера
+                    if (fisherMy > fisherTable)
+                    {
+                        /*MessageBox.Show("Фактическое значение F-критерия больше или табличного!");
+                        return;*/
+
+                        double tStudent = (Math.Abs(avarLvl1 - avarLvl2)) / Math.Sqrt( ((sigma1 * sigma1) / countNum1) + ((sigma2 * sigma2) / countNum2) );
+                        double part1 = ((sigma1 * sigma1) / countNum1) + ((sigma2 * sigma2) / countNum2);
+                        double part2 = (Math.Pow(((sigma1 * sigma1) / countNum1), 2) / (countNum1 + 1)) + (Math.Pow(((sigma2 * sigma2) / countNum2), 2) / (countNum2 + 1));
+                        double f = part1 / Math.Sqrt(part2);
+                        double tStudentTable = chart1.DataManipulator.Statistics.InverseTDistribution(0.05, (int)Math.Round(f-2));
+                        if (tStudent > tStudentTable)
+                        {
+                            MessageBox.Show("Фактическое значение T-критерия больше или табличного. Гипотеза о стационарности ряда опровергнута!", "Прогнозирование");
+                            return;
+                        }//Проверка критерия
+                    }//Проверка Фишера
+                    else
+                    { 
+                        double tStudent; //Коэф студента
+                        double sigma; //Средне квдр отклонение разности двух средних
+                        sigma = Math.Sqrt((((sigma1 * sigma1) * (countNum1 - 1)) + (sigma2 * sigma2 * (countNum2 - 1))) / (countNum1 + countNum2 - 2));
+                        tStudent = (Math.Abs(avarLvl1 - avarLvl2)) / (sigma * Math.Sqrt(1.0 / countNum1 + 1.0 / countNum2));
+                        double tStudentTabl = chart1.DataManipulator.Statistics.InverseTDistribution(0.05, countNum1 + countNum2 - 2);
+                        if (tStudent > tStudentTabl)
+                    {
+                        MessageBox.Show("Фактическое значение T-критерия больше или табличного. Гипотеза о стационарности ряда опровергнута!", "Прогнозирование");
+                        return;
+                    }//Проверка Студента
+                    }
+                }
+
+
+            }
+
         }
     }
 }
