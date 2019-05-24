@@ -33,7 +33,15 @@ namespace Forecast
                //     new Element() { Symbol="Sc", Name="Scandium", AtomicNumber=21}},
             };
 
-        public void CreateGrid(DataGridView grid)
+        public static IList<string> methods = new List<string>
+            {
+                { "линейная" },
+                { "показательная" },
+                { "парабола" }
+               //     new Element() { Symbol="Sc", Name="Scandium", AtomicNumber=21}},
+            };
+
+        private void CreateGrid(DataGridView grid)
         {
             grid.ColumnCount = 11;
             grid.Columns[0].Name = "Год";
@@ -64,22 +72,36 @@ namespace Forecast
             }*/
         }
 
+        private void ClearGrid(DataGridView dataGrid)
+        {
+            dataGrid.Rows.Clear();//очищаю таблицу
+            
+        }
+        private void ClearChart(System.Windows.Forms.DataVisualization.Charting.Chart chart)
+        {
+            chart.Series[0].Points.Clear();//Очищаю графики
+            if ((chart.Series.Count == 2))
+            {
+                chart.Series[1].Points.Clear();
 
-        public Form1()
+            }//Очищаю графики
+        }
+
+            public Form1()
         {
             try
             {
                 InitializeComponent();
 
                 ComboBoxMethod.DataSource = forecasts;
-
+                comboBoxMethods.DataSource = methods;
                 CreateGrid(dataGridView1);
                 //grid = dataGridView1;//глобальная переменная
 
                 OpenFile("D:\\kl\\вавкп.csv");
-                ComboBoxMethod.SelectedIndex = 2;
+                //ComboBoxMethod.SelectedIndex = 2;
 
-                forecast_Click(null, null);
+                //forecast_Click(null, null);
 
                 //OpenToolStripMenuItem_Click(null, null);
                 //chart1.Series.Add("ser");
@@ -106,7 +128,8 @@ namespace Forecast
             if (!(myOpenFileDialog.ShowDialog() == DialogResult.OK))
                 return;
             data = new Data(myOpenFileDialog.FileName);
-            dataGridView1.Rows.Clear();//очищаю таблицу
+            ClearGrid(dataGridView1);//Очистка
+            ClearChart(chart1);//Очистка
             string[] row = new string[11];
             DataGridViewRow r = new DataGridViewRow();
             for(int i=0; i< data.Count(); i++)
@@ -132,7 +155,7 @@ namespace Forecast
         {
 
             data = new Data(FileName);
-            dataGridView1.Rows.Clear();//очищаю таблицу
+            //ClearGridChart(dataGridView1, chart1);//Очистка
             string[] row = new string[11];
             DataGridViewRow r = new DataGridViewRow();
             for (int i = 0; i < data.Count(); i++)//Заполняю DataGridView
@@ -169,7 +192,7 @@ namespace Forecast
                     ForecastStat();
                     break;
                 case 3:
-
+                    ForecastTrend();
                     break;
             }
 
@@ -368,6 +391,71 @@ namespace Forecast
                 chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, avarLvl);
             }
 
+        }
+
+        private void ForecastTrend()
+        {
+            if (data != null)
+            {
+                chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+
+                int periodYprezdenia = (Int32)PeriodNumeric.Value;
+                double sredGrows = 1;
+                double[] newNums = new double[periodYprezdenia];
+                if (data.Count() + 1 != dataGridView1.Rows.Count)
+                    //for (int i = data.Count(); i < dataGridView1.Rows.Count; i++)
+                    while (data.Count() + 1 != dataGridView1.Rows.Count)
+                    {
+                        dataGridView1.Rows.RemoveAt(data.Count());
+                    }//Очистка лишних строк в таблице
+                for (int i = 1; i < data.Count(); i++)
+                {
+                    sredGrows *= data[i].Value.RateGrowthOrder;
+                    //sredAbsGrows += data[i].Value.IncreaseOrder;
+                }//Средний абсолютный прирост цепной
+                sredGrows = Math.Pow(sredGrows, 1.0 / data.Count()); //
+                for (int i = 0, k = 1; i < periodYprezdenia; i++)
+                {
+                    newNums[i] = data[data.Count() - 1].Value.Num * Math.Pow(sredGrows, k); //
+                    dataGridView1.Rows.Add(data[data.Count() - 1].Key + k, newNums[i]);
+                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + k, newNums[i]);
+                    k++;
+                }
+            }
+        }
+
+        private void AvarageChart(object sender, EventArgs e)
+        {
+            double lvlSkolz;
+
+            if ((chart1.Series.Count == 1))
+            {
+
+                System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series
+                {
+                    ChartArea = "ChartArea1",
+                    ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line,
+                    Color = System.Drawing.Color.Green,
+                    Legend = "Legend1",
+                    Name = "Serie1",
+                    YValuesPerPoint = 7
+                };
+                this.chart1.Series.Add(series2);
+            }
+            else
+            {
+                chart1.Series[1].Points.Clear();
+            }
+
+            for (int i=1; i< data.Count()-1; i++)
+            {
+                lvlSkolz = (data[i - 1].Value.Num + data[i].Value.Num + data[i + 1].Value.Num) / 3;
+
+
+
+                //chart1.Series.Add("Serie1");
+                chart1.Series[1].Points.AddXY(data[i].Key, lvlSkolz);
+            }
         }
     }
 }
