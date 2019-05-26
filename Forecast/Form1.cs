@@ -183,21 +183,45 @@ namespace Forecast
             switch (ComboBoxMethod.SelectedIndex)
             {
                 case 0://абсолютн
+                    HideAllMethods();
+                    PeriodNumeric.Visible = true;
+                    LabelDalnPrognoza.Visible = true;
                     ForecastAbs();
                     break;
                 case 1://геометр
+                    HideAllMethods();
+                    PeriodNumeric.Visible = true;
+                    LabelDalnPrognoza.Visible = true;
                     ForecastGeom();
                     break;
-                case 2:
+                case 2://Стационарный
+                    HideAllMethods();
+                    labelError.Visible = true;
+                    textBoxError.Visible = true;
                     ForecastStat();
                     break;
-                case 3:
+                case 3://Уровень тренда
+                    HideAllMethods();
+                    buttonSgladitb.Visible = true;
+                    labelMethodTrend.Visible = true;
+                    comboBoxMethods.Visible = true;
                     ForecastTrend();
                     break;
             }
 
 
         }//Прогноз
+
+        private void HideAllMethods()
+        {
+            labelError.Visible = false;
+            textBoxError.Visible = false;
+            PeriodNumeric.Visible = false;
+            LabelDalnPrognoza.Visible = false;
+            labelMethodTrend.Visible = false;
+            comboBoxMethods.Visible = false;
+            buttonSgladitb.Visible = false;
+        }
 
         private void ForecastAbs()
         {
@@ -384,7 +408,7 @@ namespace Forecast
                 row.Cells[0].Value = data[data.Count()].Key;
                 row.Cells[1].Value = avarLvl;*/
 
-                label1.Text = forecastError.ToString();
+                textBoxError.Text = forecastError.ToString();
 
                 dataGridView1.Rows.Insert(data.Count(), data[data.Count()-1].Key+1, avarLvl);
                 chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
