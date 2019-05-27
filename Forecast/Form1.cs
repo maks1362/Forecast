@@ -7,8 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using iTextSharp;
+using System.IO;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
-using System.Web.UI.DataVisualization.Charting; //Критерий фишера
+using System.Diagnostics;
 
 namespace Forecast
 {
@@ -104,10 +108,6 @@ namespace Forecast
 
                 //forecast_Click(null, null);
 
-                //OpenToolStripMenuItem_Click(null, null);
-                //chart1.Series.Add("ser");
-                /*chartForm = new ChartForm(data);
-                chartForm.Show();*/
                 //chart1.Series[0].X
             }
             catch (Exception e)
@@ -156,7 +156,7 @@ namespace Forecast
                     data[i].Value.CoefAdvance
                 );
             }
-            chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());//Рисую график
+            chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());//Рисую график
         }//Открыть файл и заполнить DataGridView
 
         private void forecast_Click(object sender, EventArgs e)
@@ -184,7 +184,7 @@ namespace Forecast
         {
             if (data != null)
             {
-                chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
                 int periodYprezdenia = (Int32)PeriodNumeric.Value;
                 double sredAbsIncrease = 0;
                 double[] newNums = new double[periodYprezdenia];
@@ -214,7 +214,7 @@ namespace Forecast
         {
             if (data != null)
             {
-                chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
 
                 int periodYprezdenia = (Int32)PeriodNumeric.Value;
                 double sredGrows = 1;
@@ -367,10 +367,11 @@ namespace Forecast
                 row.Cells[0].Value = data[data.Count()].Key;
                 row.Cells[1].Value = avarLvl;*/
 
-                textBoxError.Text = Math.Round(forecastError, 4).ToString();
+                textBoxErrorIndic.Text = Math.Round(sigmaForecast, 4).ToString();
+                textBoxErrorForecast.Text = Math.Round(forecastError, 4).ToString();
 
                 dataGridView1.Rows.Insert(data.Count(), data[data.Count()-1].Key+1, avarLvl);
-                chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
                 chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, avarLvl);
             }
 
@@ -384,7 +385,7 @@ namespace Forecast
                 int n1=0;
                 int yravCount=0;
                 double er = 0;
-                chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
                 if (dataGridView1.Rows.Count != data.Count()+1)
                     dataGridView1.Rows.RemoveAt(data.Count());
                 switch (comboBoxMethods.SelectedIndex)
@@ -406,7 +407,7 @@ namespace Forecast
                     
                 }
 
-                textBoxError.Text = er.ToString();
+                textBoxErrorIndic.Text = Math.Round(er, 4).ToString();
                 
 
                 void TrendLine()
@@ -435,7 +436,7 @@ namespace Forecast
 
                     newNum = x1[0] + (x1[1] * (n1 + 1));
                     dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
-                    chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                    chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
                     chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
 
                     double sum = 0;
@@ -476,7 +477,7 @@ namespace Forecast
 
                     newNum = x1[0] * Math.Pow(x1[1], n1 + 1);
                     dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
-                    chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                    chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
                     chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
 
                     double sum = 0;
@@ -521,7 +522,7 @@ namespace Forecast
 
                     newNum = x1[0] + (x1[1] * (n1 + 1)) + (x1[2] * Math.Pow(n1+1, 2));
                     dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
-                    chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                    chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
                     chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
 
                     double sum = 0;
@@ -579,7 +580,7 @@ namespace Forecast
                     ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line,
                     Color = System.Drawing.Color.Green,
                     Legend = "Legend1",
-                    Name = "Serie1",
+                    Name = "Метод скользящей средней",
                     YValuesPerPoint = 7
                 };
                 this.chart1.Series.Add(series2);
@@ -619,13 +620,15 @@ namespace Forecast
                     break;
                 case 2://Стационарный
                     HideAllMethods();
-                    labelError.Visible = true;
-                    textBoxError.Visible = true;
+                    labelErrorIndc.Visible = true;
+                    textBoxErrorIndic.Visible = true;
+                    labelErrorForecast.Visible = true;
+                    textBoxErrorForecast.Visible = true;
                     break;
                 case 3://Уровень тренда
                     HideAllMethods();
-                    labelError.Visible = true;
-                    textBoxError.Visible = true;
+                    labelErrorIndc.Visible = true;
+                    textBoxErrorIndic.Visible = true;
                     buttonSgladitb.Visible = true;
                     labelMethodTrend.Visible = true;
                     comboBoxMethods.Visible = true;
@@ -634,18 +637,136 @@ namespace Forecast
         }
         private void HideAllMethods()
     {
-        labelError.Visible = false;
-        textBoxError.Visible = false;
+        labelErrorIndc.Visible = false;
+        textBoxErrorIndic.Visible = false;
         PeriodNumeric.Visible = false;
         LabelDalnPrognoza.Visible = false;
         labelMethodTrend.Visible = false;
         comboBoxMethods.Visible = false;
         buttonSgladitb.Visible = false;
+        labelErrorForecast.Visible = false;
+        textBoxErrorForecast.Visible = false;
         if (!(chart1.Series.Count == 1))
         {
                 chart1.Series.RemoveAt(1);
             //chart1.Series[1].Points.Clear();
         }
         }//Скрывает интерфейс разных методов прогноза
+
+        private void PdfToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Объект документа пдф
+            iTextSharp.text.Document doc = new iTextSharp.text.Document();
+            doc.SetPageSize(PageSize.A4.Rotate());
+            try
+            {
+            //Создаем объект записи пдф-документа в файл
+            PdfWriter.GetInstance(doc, new FileStream("pdfTables.pdf", FileMode.Create));
+
+            }
+            catch (IOException)
+            {
+
+                    MessageBox.Show("Пожалуйста, для сохранения файла, закройте файл pdf и нажмите ОК");
+                try
+                {
+                    PdfWriter.GetInstance(doc, new FileStream("pdfTables.pdf", FileMode.Create));
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Не удалост вывести в pdf файл!");
+                    return;
+                }
+                
+            }
+
+            //Открываем документ
+            doc.Open();
+
+            //Определение шрифта необходимо для сохранения кириллического текста
+            //Иначе мы не увидим кириллический текст
+            //Если мы работаем только с англоязычными текстами, то шрифт можно не указывать
+            string FONT_LOCATION = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.TTF"); //определяем В СИСТЕМЕ(чтобы не копировать файл) расположение шрифта arial.ttf
+            BaseFont baseFont = BaseFont.CreateFont(FONT_LOCATION, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED); //создаем шрифт
+            iTextSharp.text.Font fontParagraph = new iTextSharp.text.Font(baseFont, 10, iTextSharp.text.Font.NORMAL); //регистрируем + можно задать параметры для него(17 - размер, последний параметр - стиль)
+            //Создаем объект таблицы и передаем в нее число столбцов таблицы из нашего датасета
+            PdfPTable table = new PdfPTable(dataGridView1.ColumnCount);//MyDataSet.Tables[i].Columns.Count);
+            //Добавим в таблицу общий заголовок
+            
+            PdfPCell cell = new PdfPCell(new Phrase(""));
+            //cell.Colspan = dataGridView1.ColumnCount;
+            //cell.HorizontalAlignment = 1;
+            ////Убираем границу первой ячейки, чтобы был как заголовок
+            //cell.Border = 0;
+            //table.AddCell(cell);
+
+            //Сначала добавляем заголовки таблицы
+            for (int j = 0; j < dataGridView1.ColumnCount; j++)
+            {
+                cell = new PdfPCell(new Phrase(new Phrase(dataGridView1.Columns[j].HeaderText, fontParagraph)));
+                //Фоновый цвет (необязательно, просто сделаем по красивее)
+                cell.BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY;
+                table.AddCell(cell);
+            }
+            //Добавляем все остальные ячейки
+            for (int j = 0; j < dataGridView1.RowCount - 1; j++)
+            {
+                for (int k = 0; k < dataGridView1.ColumnCount; k++)
+                {
+                    if (dataGridView1.Rows[j].Cells[k].Value != null)
+                        table.AddCell(new Phrase(Math.Round(Convert.ToDouble(dataGridView1.Rows[j].Cells[k].Value), 2).ToString(), fontParagraph));
+                }
+            }
+            //if (ComboBoxMethod.SelectedIndex != 1 && textBoxErrorIndic.Text != "")
+                //fileCSV += "Среднеквадратическая ошибка расчёта ;" + textBoxErrorIndic.Text + ";";
+            //table.AddCell(new Phrase(Math.Round(Convert.ToDouble(textBoxErrorIndic.Text), 2).ToString(), fontParagraph));
+            // table.AddCell(new Phrase("123", fontParagraph));
+            /*if (ComboBoxMethod.SelectedIndex == 2 && textBoxErrorForecast.Text != "")
+                fileCSV += "Ошибка прогноза ;" + textBoxErrorForecast.Text + ";";*/
+
+            chart1.SaveImage(Application.StartupPath + @"\1.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+            iTextSharp.text.Image jpg = iTextSharp.text.Image.GetInstance(Application.StartupPath + @"/1.bmp");
+            jpg.Alignment = iTextSharp.text.Image.ALIGN_CENTER;
+            //doc.NewPage();
+            doc.Add(jpg);
+
+            //Добавляем таблицу в документ
+            doc.Add(table);
+            //Закрываем документ
+            doc.Close();
+
+            Process.Start("pdfTables.pdf");
+        }
+
+        private void CsvToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string fileCSV = "";
+            string name = "Forecast";
+            for (int f = 0; f < dataGridView1.ColumnCount; f++)
+            {
+                fileCSV += (dataGridView1.Columns[f].HeaderText + ";");
+
+            }
+            fileCSV += "\t\n"; //тут была загвоздка
+            for (int i = 0; i < dataGridView1.RowCount - 1; i++)
+            {
+
+                for (int j = 0; j < dataGridView1.ColumnCount; j++)
+                {
+                    if (dataGridView1[j, i].Value != null)
+                        fileCSV += (dataGridView1[j, i].Value).ToString() + ";";
+                }
+
+                fileCSV += "\t\n";
+            }
+            if (ComboBoxMethod.SelectedIndex != 1 && textBoxErrorIndic.Text != "")
+                fileCSV += "Среднеквадратическая ошибка расчёта ;" + textBoxErrorIndic.Text + ";";
+            if (ComboBoxMethod.SelectedIndex == 2 && textBoxErrorForecast.Text != "")
+                fileCSV += "Ошибка прогноза ;" + textBoxErrorForecast.Text + ";";
+            StreamWriter wr = new StreamWriter(name + ".csv", false, Encoding.GetEncoding("windows-1251"));
+            wr.Write(fileCSV);
+            wr.Close();
+            Process.Start("Forecast.csv");
+        }
     }
 }

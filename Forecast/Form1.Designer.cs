@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,6 +40,9 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.actionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forecastToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pullToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.csvToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pdfToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.ComboBoxMethod = new System.Windows.Forms.ComboBox();
@@ -51,14 +54,13 @@
             this.ShowChart = new System.Windows.Forms.Button();
             this.PeriodNumeric = new System.Windows.Forms.NumericUpDown();
             this.LabelDalnPrognoza = new System.Windows.Forms.Label();
-            this.labelError = new System.Windows.Forms.Label();
+            this.labelErrorIndc = new System.Windows.Forms.Label();
             this.buttonSgladitb = new System.Windows.Forms.Button();
             this.comboBoxMethods = new System.Windows.Forms.ComboBox();
             this.labelMethodTrend = new System.Windows.Forms.Label();
-            this.textBoxError = new System.Windows.Forms.TextBox();
-            this.pullToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.csvToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.pdfToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textBoxErrorIndic = new System.Windows.Forms.TextBox();
+            this.textBoxErrorForecast = new System.Windows.Forms.TextBox();
+            this.labelErrorForecast = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.form1BindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -93,26 +95,26 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
             this.openToolStripMenuItem.Text = "Открыть...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
             this.saveToolStripMenuItem.Text = "Сохранить";
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
             this.saveAsToolStripMenuItem.Text = "Сохранить как...";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
             this.exitToolStripMenuItem.Text = "Выход";
             // 
             // actionToolStripMenuItem
@@ -127,9 +129,32 @@
             // forecastToolStripMenuItem
             // 
             this.forecastToolStripMenuItem.Name = "forecastToolStripMenuItem";
-            this.forecastToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.forecastToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
             this.forecastToolStripMenuItem.Text = "Спрогнозировать";
             this.forecastToolStripMenuItem.Click += new System.EventHandler(this.forecast_Click);
+            // 
+            // pullToolStripMenuItem
+            // 
+            this.pullToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.csvToolStripMenuItem,
+            this.pdfToolStripMenuItem});
+            this.pullToolStripMenuItem.Name = "pullToolStripMenuItem";
+            this.pullToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.pullToolStripMenuItem.Text = "Экспорт ";
+            // 
+            // csvToolStripMenuItem
+            // 
+            this.csvToolStripMenuItem.Name = "csvToolStripMenuItem";
+            this.csvToolStripMenuItem.Size = new System.Drawing.Size(95, 22);
+            this.csvToolStripMenuItem.Text = "CSV";
+            this.csvToolStripMenuItem.Click += new System.EventHandler(this.CsvToolStripMenuItem_Click);
+            // 
+            // pdfToolStripMenuItem
+            // 
+            this.pdfToolStripMenuItem.Name = "pdfToolStripMenuItem";
+            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(95, 22);
+            this.pdfToolStripMenuItem.Text = "PDF";
+            this.pdfToolStripMenuItem.Click += new System.EventHandler(this.PdfToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -186,23 +211,23 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.chart1.BorderlineColor = System.Drawing.Color.Gray;
             this.chart1.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
-            chartArea1.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea1.AxisX.IntervalOffsetType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
-            chartArea1.AxisX.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
-            chartArea1.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
+            chartArea2.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea2.AxisX.IntervalOffsetType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+            chartArea2.AxisX.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+            chartArea2.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.chart1.Legends.Add(legend2);
             this.chart1.Location = new System.Drawing.Point(219, 24);
             this.chart1.Name = "chart1";
             this.chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Chocolate;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Color = System.Drawing.Color.Red;
-            series1.Legend = "Legend1";
-            series1.Name = "Serie";
-            series1.YValuesPerPoint = 7;
-            this.chart1.Series.Add(series1);
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Color = System.Drawing.Color.Red;
+            series2.Legend = "Legend1";
+            series2.Name = "График временного ряда";
+            series2.YValuesPerPoint = 7;
+            this.chart1.Series.Add(series2);
             this.chart1.Size = new System.Drawing.Size(756, 285);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
@@ -254,15 +279,15 @@
             this.LabelDalnPrognoza.Text = "Дальность прогноза(ед. ряда)";
             this.LabelDalnPrognoza.Visible = false;
             // 
-            // labelError
+            // labelErrorIndc
             // 
-            this.labelError.AutoSize = true;
-            this.labelError.Location = new System.Drawing.Point(11, 132);
-            this.labelError.Name = "labelError";
-            this.labelError.Size = new System.Drawing.Size(50, 13);
-            this.labelError.TabIndex = 13;
-            this.labelError.Text = "Ошибка:";
-            this.labelError.Visible = false;
+            this.labelErrorIndc.AutoSize = true;
+            this.labelErrorIndc.Location = new System.Drawing.Point(11, 132);
+            this.labelErrorIndc.Name = "labelErrorIndc";
+            this.labelErrorIndc.Size = new System.Drawing.Size(170, 13);
+            this.labelErrorIndc.TabIndex = 13;
+            this.labelErrorIndc.Text = "Среднеквадратическая ошибка:";
+            this.labelErrorIndc.Visible = false;
             // 
             // buttonSgladitb
             // 
@@ -295,46 +320,46 @@
             this.labelMethodTrend.Text = "Расчёт с помощью:";
             this.labelMethodTrend.Visible = false;
             // 
-            // textBoxError
+            // textBoxErrorIndic
             // 
-            this.textBoxError.Location = new System.Drawing.Point(67, 129);
-            this.textBoxError.Name = "textBoxError";
-            this.textBoxError.ReadOnly = true;
-            this.textBoxError.Size = new System.Drawing.Size(100, 20);
-            this.textBoxError.TabIndex = 17;
-            this.textBoxError.Visible = false;
+            this.textBoxErrorIndic.Location = new System.Drawing.Point(12, 146);
+            this.textBoxErrorIndic.Name = "textBoxErrorIndic";
+            this.textBoxErrorIndic.ReadOnly = true;
+            this.textBoxErrorIndic.Size = new System.Drawing.Size(100, 20);
+            this.textBoxErrorIndic.TabIndex = 17;
+            this.textBoxErrorIndic.Visible = false;
             // 
-            // pullToolStripMenuItem
+            // textBoxErrorForecast
             // 
-            this.pullToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.csvToolStripMenuItem,
-            this.pdfToolStripMenuItem});
-            this.pullToolStripMenuItem.Name = "pullToolStripMenuItem";
-            this.pullToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.pullToolStripMenuItem.Text = "Экспорт ";
+            this.textBoxErrorForecast.Location = new System.Drawing.Point(12, 191);
+            this.textBoxErrorForecast.Name = "textBoxErrorForecast";
+            this.textBoxErrorForecast.ReadOnly = true;
+            this.textBoxErrorForecast.Size = new System.Drawing.Size(100, 20);
+            this.textBoxErrorForecast.TabIndex = 19;
+            this.textBoxErrorForecast.Visible = false;
             // 
-            // csvToolStripMenuItem
+            // labelErrorForecast
             // 
-            this.csvToolStripMenuItem.Name = "csvToolStripMenuItem";
-            this.csvToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.csvToolStripMenuItem.Text = "CSV";
-            // 
-            // pdfToolStripMenuItem
-            // 
-            this.pdfToolStripMenuItem.Name = "pdfToolStripMenuItem";
-            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.pdfToolStripMenuItem.Text = "PDF";
+            this.labelErrorForecast.AutoSize = true;
+            this.labelErrorForecast.Location = new System.Drawing.Point(11, 175);
+            this.labelErrorForecast.Name = "labelErrorForecast";
+            this.labelErrorForecast.Size = new System.Drawing.Size(100, 13);
+            this.labelErrorForecast.TabIndex = 18;
+            this.labelErrorForecast.Text = "Ошибка прогноза:";
+            this.labelErrorForecast.Visible = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(987, 450);
-            this.Controls.Add(this.textBoxError);
+            this.Controls.Add(this.textBoxErrorForecast);
+            this.Controls.Add(this.labelErrorForecast);
+            this.Controls.Add(this.textBoxErrorIndic);
             this.Controls.Add(this.labelMethodTrend);
             this.Controls.Add(this.comboBoxMethods);
             this.Controls.Add(this.buttonSgladitb);
-            this.Controls.Add(this.labelError);
+            this.Controls.Add(this.labelErrorIndc);
             this.Controls.Add(this.LabelDalnPrognoza);
             this.Controls.Add(this.PeriodNumeric);
             this.Controls.Add(this.ShowChart);
@@ -380,14 +405,16 @@
         private System.Windows.Forms.Button ShowChart;
         private System.Windows.Forms.NumericUpDown PeriodNumeric;
         private System.Windows.Forms.Label LabelDalnPrognoza;
-        private System.Windows.Forms.Label labelError;
+        private System.Windows.Forms.Label labelErrorIndc;
         private System.Windows.Forms.Button buttonSgladitb;
         private System.Windows.Forms.ComboBox comboBoxMethods;
         private System.Windows.Forms.Label labelMethodTrend;
-        private System.Windows.Forms.TextBox textBoxError;
+        private System.Windows.Forms.TextBox textBoxErrorIndic;
         private System.Windows.Forms.ToolStripMenuItem pullToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem csvToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pdfToolStripMenuItem;
+        private System.Windows.Forms.TextBox textBoxErrorForecast;
+        private System.Windows.Forms.Label labelErrorForecast;
     }
 }
 
