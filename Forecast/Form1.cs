@@ -20,6 +20,7 @@ namespace Forecast
     public partial class Form1 : Form
     {
         private Data data;
+        private string fileName;
         //private DataGridView grid;
         /// <summary>
         /// Список способов прогноза
@@ -98,8 +99,8 @@ namespace Forecast
                 CreateGrid(dataGridView1);
                 //grid = dataGridView1;//глобальная переменная
 
-                OpenFile("..\\..\\Исходные данные\\врем_ряд_1.csv");
-                //ComboBoxMethod.SelectedIndex = 2;
+                OpenFile("..\\..\\Исходные данные\\Проверка линейн тренда — копия.csv");
+                ComboBoxMethod.SelectedIndex = 3;
 
                 //forecast_Click(null, null);
 
@@ -127,26 +128,9 @@ namespace Forecast
 
             if (!(myOpenFileDialog.ShowDialog() == DialogResult.OK))
                 return;
-            OpenFile(myOpenFileDialog.FileName);
-            /*data = new Data(myOpenFileDialog.FileName);
+            fileName = myOpenFileDialog.FileName;
+            OpenFile(fileName);
 
-            for(int i=0; i< data.Count(); i++)
-            {
-                dataGridView1.Rows.Insert(
-                    dataGridView1.RowCount-1, //В какое место таблицы вставить строку
-                    data[i].Key, 
-                    data[i].Value.Num, 
-                    data[i].Value.IncreaseOrder, 
-                    data[i].Value.IncreaseBase, 
-                    data[i].Value.RateGrowthOrder, 
-                    data[i].Value.RateGrowthBase,
-                    data[i].Value.RateIncreaseOrder,
-                    data[i].Value.RateIncreaseBase,
-                    data[i].Value.AbsOfPerIncrease,
-                    data[i].Value.RelativeAcceler,
-                    data[i].Value.CoefAdvance
-                );
-            }//Заполняю DataGridView*/
         }//Диалог открытия файла и заполнение DataGridView
 
         private void OpenFile(string FileName)
@@ -261,8 +245,10 @@ namespace Forecast
         {
             if (data != null)
             {
-                 
-                    double avarLvl1 = 0;//Средний уровень половины ряда
+                if (dataGridView1.Rows.Count != data.Count() + 1)
+                    dataGridView1.Rows.RemoveAt(data.Count());
+
+                double avarLvl1 = 0;//Средний уровень половины ряда
                     double avarLvl2 = 0;
                     int countNum1 = (data.Count() / 2);
                     int countNum2 = (data.Count() - data.Count() / 2);
@@ -394,32 +380,185 @@ namespace Forecast
         {
             if (data != null)
             {
+                double newNum=0;
+                int n1=0;
+                int yravCount=0;
+                double er = 0;
                 chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
-
-
-
-                int periodYprezdenia = (Int32)PeriodNumeric.Value;
-                double sredGrows = 1;
-                double[] newNums = new double[periodYprezdenia];
-                if (data.Count() + 1 != dataGridView1.Rows.Count)
-                    //for (int i = data.Count(); i < dataGridView1.Rows.Count; i++)
-                    while (data.Count() + 1 != dataGridView1.Rows.Count)
-                    {
-                        dataGridView1.Rows.RemoveAt(data.Count());
-                    }//Очистка лишних строк в таблице
-                for (int i = 1; i < data.Count(); i++)
+                if (dataGridView1.Rows.Count != data.Count()+1)
+                    dataGridView1.Rows.RemoveAt(data.Count());
+                switch (comboBoxMethods.SelectedIndex)
                 {
-                    sredGrows *= data[i].Value.RateGrowthOrder;
-                    //sredAbsGrows += data[i].Value.IncreaseOrder;
-                }//Средний абсолютный прирост цепной
-                sredGrows = Math.Pow(sredGrows, 1.0 / data.Count()); //
-                for (int i = 0, k = 1; i < periodYprezdenia; i++)
-                {
-                    newNums[i] = data[data.Count() - 1].Value.Num * Math.Pow(sredGrows, k); //
-                    dataGridView1.Rows.Add(data[data.Count() - 1].Key + k, newNums[i]);
-                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + k, newNums[i]);
-                    k++;
+                    case 0://абсолютн
+                        TrendLine();
+                        break;
+                    case 1://геометр
+                        TrendIndecative();
+                        break;
+                    case 2://Стационарный
+                        TrendParabola();
+                        break;
+                    case 3://Уровень тренда
+                        ForecastTrend();
+                        break;
+                    default:
+                        return;
+                    
                 }
+
+                textBoxError.Text = er.ToString();
+                
+
+                void TrendLine()
+                {
+                    yravCount = 2;
+                    n1 = data.Count();
+                    double sumT = 0;
+                    double sumT2 = 0;
+                    double sumLnNum = 0;
+                    double sumLnNumT = 0;
+                    for (int i = 1; i < n1 + 1; i++)
+                    {
+                        sumT += i;
+                        sumT2 += i * i;
+                        sumLnNum += data[i - 1].Value.Num;//
+                        sumLnNumT += i * data[i - 1].Value.Num;//
+                    }
+
+
+
+                    double[,] a1 = new double[,] { { n1, sumT }, { sumT, sumT2 } };
+                    double[] b1 = new double[] { sumLnNum, sumLnNumT };
+                    double[] x1 = GausSolver(yravCount, a1, b1);
+
+                    //
+
+                    newNum = x1[0] + (x1[1] * (n1 + 1));
+                    dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
+                    chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
+
+                    double sum = 0;
+                    for (int i = 0; i < data.Count(); i++)
+                    {
+                        sum += Math.Pow(data[i].Value.Num - (x1[0] + (x1[1] * (i+1))), 2);
+                    }
+
+                    er = Math.Sqrt(sum / (data.Count() - yravCount));
+                }
+
+                void TrendIndecative()
+                {
+                    yravCount = 2;
+                    n1 = data.Count();
+                    double sumT = 0;
+                    double sumT2 = 0;
+                    double sumLnNum = 0;
+                    double sumLnNumT = 0;
+                    for (int i = 1; i < n1 + 1; i++)
+                    {
+                        sumT += i;
+                        sumT2 += i * i;
+                        sumLnNum += Math.Log(data[i - 1].Value.Num);
+                        sumLnNumT += i * Math.Log(data[i - 1].Value.Num);
+                    }
+
+
+
+                    double[,] a1 = new double[,] { { n1, sumT }, { sumT, sumT2 } };
+                    double[] b1 = new double[] { sumLnNum, sumLnNumT };
+                    double[] x1 = GausSolver(yravCount, a1, b1);
+
+                    for (int i = 0; i < x1.Count(); i++)
+                    {
+                        x1[i] = Math.Exp(x1[i]);
+                    }//Извлекаем логарифм
+
+                    newNum = x1[0] * Math.Pow(x1[1], n1 + 1);
+                    dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
+                    chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
+
+                    double sum = 0;
+                    for (int i = 0; i < data.Count(); i++)
+                    {
+                        sum += Math.Pow(data[i].Value.Num - (x1[0] * Math.Pow(x1[1], i + 1)), 2);
+                    }
+
+                    er = Math.Sqrt(sum / (data.Count() - yravCount));
+                }
+
+                void TrendParabola()
+                {
+                    yravCount = 3;
+                    //Коэффициенты
+                    n1 = data.Count();
+                    double sumT = 0;
+                    double sumT2 = 0;
+                    double sumT3 = 0;
+                    double sumT4 = 0;
+                    double sumNum = 0;
+                    double sumNumT = 0;
+                    double sumNumT2 = 0;
+                    for (int i = 1; i < n1 + 1; i++)
+                    {
+                        sumT += i;
+                        sumT2 += i * i;
+                        sumT3 += i * i * i;
+                        sumT4 += i * i * i * i;
+                        sumNum += data[i - 1].Value.Num;//
+                        sumNumT += i * data[i - 1].Value.Num;//
+                        sumNumT2 += i * i * data[i - 1].Value.Num;//
+                    }
+
+
+
+                    double[,] a1 = new double[,] { { n1, sumT, sumT2 }, { sumT, sumT2, sumT3 }, { sumT2, sumT3, sumT4} };
+                    double[] b1 = new double[] { sumNum, sumNumT, sumNumT2 };
+                    double[] x1 = GausSolver(yravCount, a1, b1);
+
+                    //
+
+                    newNum = x1[0] + (x1[1] * (n1 + 1)) + (x1[2] * Math.Pow(n1+1, 2));
+                    dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
+                    chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
+
+                    double sum = 0;
+                    for (int i = 0; i < data.Count(); i++)
+                    {
+                        sum += Math.Pow(data[i].Value.Num - (x1[0] + (x1[1] * (i + 1)) + (x1[2] * Math.Pow(i + 1, 2))), 2);
+                    }
+
+                    er = Math.Sqrt(sum / (data.Count() - yravCount));
+                }
+
+                double[] GausSolver(int n, double[,] a, double[] b)
+                {
+                    double[] x = new double[n];
+
+                    for (int k = 0; k < n - 1; k++)
+                    {
+                        for (int i = k + 1; i < n; i++)
+                        {
+                            for (int j = k + 1; j < n; j++)
+                            {
+                                a[i, j] = a[i, j] - a[k, j] * (a[i, k] / a[k, k]);
+                            }
+                            b[i] = b[i] - b[k] * a[i, k] / a[k, k];
+                        }
+                    }
+                    double s;//Временная переменная
+                    for (int k = n - 1; k >= 0; k--)
+                    {
+                        s = 0;
+                        for (int j = k + 1; j < n; j++)
+                            s = s + a[k, j] * x[j];
+                        x[k] = (b[k] - s) / a[k, k];
+                    }
+                    return x;
+
+                }//функция решения СЛАУ
             }
         }
         /// <summary>
@@ -459,6 +598,13 @@ namespace Forecast
 
         private void ComboBoxMethod_SelectedIndexChanged(object sender, EventArgs e)//При изменении метода прогноза
         {
+            if (!(fileName == null))
+                OpenFile(fileName);
+            if (!(chart1.Series.Count == 1) && ComboBoxMethod.SelectedIndex != 3)
+            {
+                    chart1.Series.RemoveAt(1);
+                //chart1.Series[1].Points.Clear();
+            }
             switch (ComboBoxMethod.SelectedIndex)
             {
                 case 0://абсолютн

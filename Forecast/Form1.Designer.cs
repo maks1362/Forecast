@@ -40,7 +40,6 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.actionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forecastToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.ComboBoxMethod = new System.Windows.Forms.ComboBox();
@@ -57,6 +56,9 @@
             this.comboBoxMethods = new System.Windows.Forms.ComboBox();
             this.labelMethodTrend = new System.Windows.Forms.Label();
             this.textBoxError = new System.Windows.Forms.TextBox();
+            this.pullToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.csvToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pdfToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.form1BindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -91,33 +93,33 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openToolStripMenuItem.Text = "Открыть...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveToolStripMenuItem.Text = "Сохранить";
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAsToolStripMenuItem.Text = "Сохранить как...";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Выход";
             // 
             // actionToolStripMenuItem
             // 
             this.actionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.forecastToolStripMenuItem,
-            this.clearToolStripMenuItem});
+            this.pullToolStripMenuItem});
             this.actionToolStripMenuItem.Name = "actionToolStripMenuItem";
             this.actionToolStripMenuItem.Size = new System.Drawing.Size(70, 20);
             this.actionToolStripMenuItem.Text = "Действие";
@@ -125,15 +127,9 @@
             // forecastToolStripMenuItem
             // 
             this.forecastToolStripMenuItem.Name = "forecastToolStripMenuItem";
-            this.forecastToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.forecastToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.forecastToolStripMenuItem.Text = "Спрогнозировать";
             this.forecastToolStripMenuItem.Click += new System.EventHandler(this.forecast_Click);
-            // 
-            // clearToolStripMenuItem
-            // 
-            this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
-            this.clearToolStripMenuItem.Text = "Очистить";
             // 
             // aboutToolStripMenuItem
             // 
@@ -217,9 +213,9 @@
             // 
             // ShowChart
             // 
-            this.ShowChart.Location = new System.Drawing.Point(80, 273);
+            this.ShowChart.Location = new System.Drawing.Point(11, 273);
             this.ShowChart.Name = "ShowChart";
-            this.ShowChart.Size = new System.Drawing.Size(127, 23);
+            this.ShowChart.Size = new System.Drawing.Size(196, 23);
             this.ShowChart.TabIndex = 10;
             this.ShowChart.Text = "Спрогнозировать";
             this.ShowChart.UseVisualStyleBackColor = true;
@@ -270,9 +266,9 @@
             // 
             // buttonSgladitb
             // 
-            this.buttonSgladitb.Location = new System.Drawing.Point(75, 222);
+            this.buttonSgladitb.Location = new System.Drawing.Point(11, 222);
             this.buttonSgladitb.Name = "buttonSgladitb";
-            this.buttonSgladitb.Size = new System.Drawing.Size(132, 45);
+            this.buttonSgladitb.Size = new System.Drawing.Size(196, 45);
             this.buttonSgladitb.TabIndex = 14;
             this.buttonSgladitb.Text = "Сглаживание методом скользящей средней";
             this.buttonSgladitb.UseVisualStyleBackColor = true;
@@ -283,7 +279,7 @@
             // 
             this.comboBoxMethods.DataSource = this.form1BindingSource;
             this.comboBoxMethods.FormattingEnabled = true;
-            this.comboBoxMethods.Location = new System.Drawing.Point(12, 95);
+            this.comboBoxMethods.Location = new System.Drawing.Point(11, 97);
             this.comboBoxMethods.Name = "comboBoxMethods";
             this.comboBoxMethods.Size = new System.Drawing.Size(145, 21);
             this.comboBoxMethods.TabIndex = 15;
@@ -307,6 +303,27 @@
             this.textBoxError.Size = new System.Drawing.Size(100, 20);
             this.textBoxError.TabIndex = 17;
             this.textBoxError.Visible = false;
+            // 
+            // pullToolStripMenuItem
+            // 
+            this.pullToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.csvToolStripMenuItem,
+            this.pdfToolStripMenuItem});
+            this.pullToolStripMenuItem.Name = "pullToolStripMenuItem";
+            this.pullToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pullToolStripMenuItem.Text = "Экспорт ";
+            // 
+            // csvToolStripMenuItem
+            // 
+            this.csvToolStripMenuItem.Name = "csvToolStripMenuItem";
+            this.csvToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.csvToolStripMenuItem.Text = "CSV";
+            // 
+            // pdfToolStripMenuItem
+            // 
+            this.pdfToolStripMenuItem.Name = "pdfToolStripMenuItem";
+            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pdfToolStripMenuItem.Text = "PDF";
             // 
             // Form1
             // 
@@ -353,7 +370,6 @@
         private System.Windows.Forms.ToolStripMenuItem actionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem forecastToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
         private System.Windows.Forms.MenuStrip menuStrip2;
         private System.Windows.Forms.ComboBox ComboBoxMethod;
         private System.Windows.Forms.Label label2;
@@ -369,6 +385,9 @@
         private System.Windows.Forms.ComboBox comboBoxMethods;
         private System.Windows.Forms.Label labelMethodTrend;
         private System.Windows.Forms.TextBox textBoxError;
+        private System.Windows.Forms.ToolStripMenuItem pullToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem csvToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pdfToolStripMenuItem;
     }
 }
 
