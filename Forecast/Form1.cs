@@ -87,7 +87,7 @@ namespace Forecast
             }//Очищаю графики
         }
 
-            public Form1()
+        public Form1()
         {
             try
             {
@@ -98,7 +98,7 @@ namespace Forecast
                 CreateGrid(dataGridView1);
                 //grid = dataGridView1;//глобальная переменная
 
-                OpenFile("D:\\kl\\вавкп.csv");
+                OpenFile("..\\..\\Исходные данные\\врем_ряд_1.csv");
                 //ComboBoxMethod.SelectedIndex = 2;
 
                 //forecast_Click(null, null);
@@ -127,11 +127,9 @@ namespace Forecast
 
             if (!(myOpenFileDialog.ShowDialog() == DialogResult.OK))
                 return;
-            data = new Data(myOpenFileDialog.FileName);
-            ClearGrid(dataGridView1);//Очистка
-            ClearChart(chart1);//Очистка
-            string[] row = new string[11];
-            DataGridViewRow r = new DataGridViewRow();
+            OpenFile(myOpenFileDialog.FileName);
+            /*data = new Data(myOpenFileDialog.FileName);
+
             for(int i=0; i< data.Count(); i++)
             {
                 dataGridView1.Rows.Insert(
@@ -148,16 +146,15 @@ namespace Forecast
                     data[i].Value.RelativeAcceler,
                     data[i].Value.CoefAdvance
                 );
-            }//Заполняю DataGridView
+            }//Заполняю DataGridView*/
         }//Диалог открытия файла и заполнение DataGridView
 
         private void OpenFile(string FileName)
         {
 
             data = new Data(FileName);
-            //ClearGridChart(dataGridView1, chart1);//Очистка
-            string[] row = new string[11];
-            DataGridViewRow r = new DataGridViewRow();
+            ClearGrid(dataGridView1);//Очистка
+            ClearChart(chart1);//Очистка
             for (int i = 0; i < data.Count(); i++)//Заполняю DataGridView
             {
                 dataGridView1.Rows.Insert(
@@ -175,53 +172,29 @@ namespace Forecast
                     data[i].Value.CoefAdvance
                 );
             }
+            chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());//Рисую график
         }//Открыть файл и заполнить DataGridView
 
         private void forecast_Click(object sender, EventArgs e)
         {
-            //var a = ComboBoxMethod.SelectedIndex; //Выбранный способ прогноза(индекс)
             switch (ComboBoxMethod.SelectedIndex)
             {
                 case 0://абсолютн
-                    HideAllMethods();
-                    PeriodNumeric.Visible = true;
-                    LabelDalnPrognoza.Visible = true;
                     ForecastAbs();
                     break;
                 case 1://геометр
-                    HideAllMethods();
-                    PeriodNumeric.Visible = true;
-                    LabelDalnPrognoza.Visible = true;
                     ForecastGeom();
                     break;
                 case 2://Стационарный
-                    HideAllMethods();
-                    labelError.Visible = true;
-                    textBoxError.Visible = true;
                     ForecastStat();
                     break;
                 case 3://Уровень тренда
-                    HideAllMethods();
-                    buttonSgladitb.Visible = true;
-                    labelMethodTrend.Visible = true;
-                    comboBoxMethods.Visible = true;
                     ForecastTrend();
                     break;
             }
 
 
         }//Прогноз
-
-        private void HideAllMethods()
-        {
-            labelError.Visible = false;
-            textBoxError.Visible = false;
-            PeriodNumeric.Visible = false;
-            LabelDalnPrognoza.Visible = false;
-            labelMethodTrend.Visible = false;
-            comboBoxMethods.Visible = false;
-            buttonSgladitb.Visible = false;
-        }
 
         private void ForecastAbs()
         {
@@ -408,7 +381,7 @@ namespace Forecast
                 row.Cells[0].Value = data[data.Count()].Key;
                 row.Cells[1].Value = avarLvl;*/
 
-                textBoxError.Text = forecastError.ToString();
+                textBoxError.Text = Math.Round(forecastError, 4).ToString();
 
                 dataGridView1.Rows.Insert(data.Count(), data[data.Count()-1].Key+1, avarLvl);
                 chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
@@ -422,6 +395,8 @@ namespace Forecast
             if (data != null)
             {
                 chart1.Series["Serie"].Points.DataBindXY(data.Keys, data.GetNums());
+
+
 
                 int periodYprezdenia = (Int32)PeriodNumeric.Value;
                 double sredGrows = 1;
@@ -447,7 +422,11 @@ namespace Forecast
                 }
             }
         }
-
+        /// <summary>
+        /// Метод скользящей средней
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AvarageChart(object sender, EventArgs e)
         {
             double lvlSkolz;
@@ -474,12 +453,53 @@ namespace Forecast
             for (int i=1; i< data.Count()-1; i++)
             {
                 lvlSkolz = (data[i - 1].Value.Num + data[i].Value.Num + data[i + 1].Value.Num) / 3;
-
-
-
-                //chart1.Series.Add("Serie1");
                 chart1.Series[1].Points.AddXY(data[i].Key, lvlSkolz);
             }
         }
+
+        private void ComboBoxMethod_SelectedIndexChanged(object sender, EventArgs e)//При изменении метода прогноза
+        {
+            switch (ComboBoxMethod.SelectedIndex)
+            {
+                case 0://абсолютн
+                    HideAllMethods();
+                    PeriodNumeric.Visible = true;
+                    LabelDalnPrognoza.Visible = true;
+                    break;
+                case 1://геометр
+                    HideAllMethods();
+                    PeriodNumeric.Visible = true;
+                    LabelDalnPrognoza.Visible = true;
+                    break;
+                case 2://Стационарный
+                    HideAllMethods();
+                    labelError.Visible = true;
+                    textBoxError.Visible = true;
+                    break;
+                case 3://Уровень тренда
+                    HideAllMethods();
+                    labelError.Visible = true;
+                    textBoxError.Visible = true;
+                    buttonSgladitb.Visible = true;
+                    labelMethodTrend.Visible = true;
+                    comboBoxMethods.Visible = true;
+                    break;
+            }
+        }
+        private void HideAllMethods()
+    {
+        labelError.Visible = false;
+        textBoxError.Visible = false;
+        PeriodNumeric.Visible = false;
+        LabelDalnPrognoza.Visible = false;
+        labelMethodTrend.Visible = false;
+        comboBoxMethods.Visible = false;
+        buttonSgladitb.Visible = false;
+        if (!(chart1.Series.Count == 1))
+        {
+                chart1.Series.RemoveAt(1);
+            //chart1.Series[1].Points.Clear();
+        }
+        }//Скрывает интерфейс разных методов прогноза
     }
 }
