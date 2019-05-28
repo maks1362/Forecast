@@ -14,6 +14,7 @@ using iTextSharp.text.pdf;
 
 using System.Diagnostics;
 
+
 namespace Forecast
 {
     /*static class ForecastMethod
@@ -31,18 +32,18 @@ namespace Forecast
         /// </summary>
         public static IList<string> forecasts = new List<string>
             {
-                { "по среднему абсолютному приросту" },
-                { "по среднему коэффициенту роста" },
-                { "стационарного ряда" },
-                { "по уравнению тренда" }
+                { "По среднему абсолютному приросту" },
+                { "По среднему коэффициенту роста" },
+                { "На основе стационарного ряда" },
+                { "По уравнению тренда" }
                //     new Element() { Symbol="Sc", Name="Scandium", AtomicNumber=21}},
             };
 
         public static IList<string> methods = new List<string>
             {
-                { "линейная" },
-                { "показательная" },
-                { "парабола" }
+                { "Линейное" },
+                { "Показательное" },
+                { "Парабола" }
                //     new Element() { Symbol="Sc", Name="Scandium", AtomicNumber=21}},
             };
 
@@ -96,6 +97,7 @@ namespace Forecast
         {
             try
             {
+
                 InitializeComponent();
 
                 ComboBoxMethod.DataSource = forecasts;
@@ -103,7 +105,7 @@ namespace Forecast
                 CreateGrid(dataGridView1);
                 //grid = dataGridView1;//глобальная переменная
 
-                OpenFile("..\\..\\Исходные данные\\Проверка линейн тренда — копия.csv");
+                //OpenFile("..\\..\\Исходные данные\\Проверка линейн тренда — копия.csv");
                 ComboBoxMethod.SelectedIndex = 3;
 
                 //forecast_Click(null, null);
@@ -157,10 +159,12 @@ namespace Forecast
                 );
             }
             chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());//Рисую график
+            //chart1.Series[0].
         }//Открыть файл и заполнить DataGridView
 
         private void forecast_Click(object sender, EventArgs e)
         {
+            if (fileName != null)
             switch (ComboBoxMethod.SelectedIndex)
             {
                 case 0://абсолютн
@@ -173,12 +177,17 @@ namespace Forecast
                     ForecastStat();
                     break;
                 case 3://Уровень тренда
-                    ForecastTrend();
+                    ForecastTrend(false);
                     break;
             }
 
 
         }//Прогноз
+
+        private void PerfomAutoForecast_Click(object sender, EventArgs e)
+        {
+            ForecastTrend(true);
+        }//Прогноз по тренду автоматический
 
         private void ForecastAbs()
         {
@@ -333,7 +342,7 @@ namespace Forecast
                         tStudentTable = chart1.DataManipulator.Statistics.InverseTDistribution(0.05, (int)Math.Round(f-2));
                         if (tStudent > tStudentTable)
                         {
-                            MessageBox.Show("Фактическое значение T-критерия больше или табличного. Гипотеза о стационарности ряда опровергнута!", "Прогнозирование");
+                            MessageBox.Show("Фактическое значение T-критерия Стьюдента больше табличного. Гипотеза о стационарности ряда опровергнута!", "Прогнозирование");
                             return;
                         }//Проверка критерия
                     }//Проверка Фишера
@@ -346,7 +355,7 @@ namespace Forecast
                         tStudentTable = chart1.DataManipulator.Statistics.InverseTDistribution(0.05, countNum1 + countNum2 - 2);
                         if (tStudent > tStudentTable)
                     {
-                        MessageBox.Show("Фактическое значение T-критерия больше или табличного. Гипотеза о стационарности ряда опровергнута!", "Прогнозирование");
+                        MessageBox.Show("Фактическое значение T-критерия Стьюдента больше табличного. Гипотеза о стационарности ряда опровергнута!", "Прогнозирование");
                         return;
                     }//Проверка Студента
                     }
@@ -377,7 +386,7 @@ namespace Forecast
 
         }
 
-        private void ForecastTrend()
+        private void ForecastTrend(bool auto)
         {
             if (data != null)
             {
@@ -388,6 +397,26 @@ namespace Forecast
                 chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
                 if (dataGridView1.Rows.Count != data.Count()+1)
                     dataGridView1.Rows.RemoveAt(data.Count());
+                if (auto == true)
+                {
+                    double[] errors = new double[3];
+                    errors[0] = TrendLine();
+                    errors[1] = TrendIndecative();
+                    errors[2] = TrendParabola();
+                    double min = Math.Min(Math.Min(errors[0], errors[1]), errors[2]);
+                    if (min == errors[0])
+                        comboBoxMethods.SelectedIndex = 0;
+                    else if (min == errors[1])
+                        comboBoxMethods.SelectedIndex = 1;
+                    else if (min == errors[2])
+                        comboBoxMethods.SelectedIndex = 2;
+                    ComboBoxMethod_SelectedIndexChanged(null, null);
+                    ForecastTrend(false);
+                    return;
+                }
+                
+
+
                 switch (comboBoxMethods.SelectedIndex)
                 {
                     case 0://абсолютн
@@ -399,18 +428,15 @@ namespace Forecast
                     case 2://Стационарный
                         TrendParabola();
                         break;
-                    case 3://Уровень тренда
-                        ForecastTrend();
-                        break;
                     default:
                         return;
                     
                 }
 
                 textBoxErrorIndic.Text = Math.Round(er, 4).ToString();
-                
 
-                void TrendLine()
+
+                double TrendLine()
                 {
                     yravCount = 2;
                     n1 = data.Count();
@@ -433,12 +459,6 @@ namespace Forecast
                     double[] x1 = GausSolver(yravCount, a1, b1);
 
                     //
-
-                    newNum = x1[0] + (x1[1] * (n1 + 1));
-                    dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
-                    chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
-                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
-
                     double sum = 0;
                     for (int i = 0; i < data.Count(); i++)
                     {
@@ -446,9 +466,18 @@ namespace Forecast
                     }
 
                     er = Math.Sqrt(sum / (data.Count() - yravCount));
+                    if (auto == true)
+                        return er;
+
+
+                    newNum = x1[0] + (x1[1] * (n1 + 1));
+                    dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
+                    chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
+                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
+                    return er;
                 }
 
-                void TrendIndecative()
+                double TrendIndecative()
                 {
                     yravCount = 2;
                     n1 = data.Count();
@@ -475,11 +504,6 @@ namespace Forecast
                         x1[i] = Math.Exp(x1[i]);
                     }//Извлекаем логарифм
 
-                    newNum = x1[0] * Math.Pow(x1[1], n1 + 1);
-                    dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
-                    chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
-                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
-
                     double sum = 0;
                     for (int i = 0; i < data.Count(); i++)
                     {
@@ -487,9 +511,18 @@ namespace Forecast
                     }
 
                     er = Math.Sqrt(sum / (data.Count() - yravCount));
+                    if (auto == true)
+                        return er;
+
+                    newNum = x1[0] * Math.Pow(x1[1], n1 + 1);
+                    dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
+                    chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
+                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
+
+                    return er;
                 }
 
-                void TrendParabola()
+                double TrendParabola()
                 {
                     yravCount = 3;
                     //Коэффициенты
@@ -519,12 +552,6 @@ namespace Forecast
                     double[] x1 = GausSolver(yravCount, a1, b1);
 
                     //
-
-                    newNum = x1[0] + (x1[1] * (n1 + 1)) + (x1[2] * Math.Pow(n1+1, 2));
-                    dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
-                    chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
-                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
-
                     double sum = 0;
                     for (int i = 0; i < data.Count(); i++)
                     {
@@ -532,6 +559,18 @@ namespace Forecast
                     }
 
                     er = Math.Sqrt(sum / (data.Count() - yravCount));
+                    if (auto == true)
+                        return er;
+
+
+                    newNum = x1[0] + (x1[1] * (n1 + 1)) + (x1[2] * Math.Pow(n1+1, 2));
+                    dataGridView1.Rows.Insert(data.Count(), data[data.Count() - 1].Key + 1, newNum);
+                    chart1.Series[0].Points.DataBindXY(data.Keys, data.GetNums());
+                    chart1.Series[0].Points.AddXY(data[data.Count() - 1].Key + 1, newNum);
+
+
+
+                    return er;
                 }
 
                 double[] GausSolver(int n, double[,] a, double[] b)
@@ -581,7 +620,8 @@ namespace Forecast
                     Color = System.Drawing.Color.Green,
                     Legend = "Legend1",
                     Name = "Метод скользящей средней",
-                    YValuesPerPoint = 7
+                    YValuesPerPoint = 7,
+                    BorderWidth = 2
                 };
                 this.chart1.Series.Add(series2);
             }
@@ -632,9 +672,52 @@ namespace Forecast
                     buttonSgladitb.Visible = true;
                     labelMethodTrend.Visible = true;
                     comboBoxMethods.Visible = true;
+
+                    PerfomAutoForecast.Visible = true;
                     break;
             }
         }
+        private void ComboBoxMethods_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (!(fileName == null))
+                OpenFile(fileName);
+            if (!(chart1.Series.Count == 1) && ComboBoxMethod.SelectedIndex != 3)
+            {
+                chart1.Series.RemoveAt(1);
+                //chart1.Series[1].Points.Clear();
+            }
+            switch (ComboBoxMethod.SelectedIndex)
+            {
+                case 0://абсолютн
+                    HideAllMethods();
+                    PeriodNumeric.Visible = true;
+                    LabelDalnPrognoza.Visible = true;
+                    break;
+                case 1://геометр
+                    HideAllMethods();
+                    PeriodNumeric.Visible = true;
+                    LabelDalnPrognoza.Visible = true;
+                    break;
+                case 2://Стационарный
+                    HideAllMethods();
+                    labelErrorIndc.Visible = true;
+                    textBoxErrorIndic.Visible = true;
+                    labelErrorForecast.Visible = true;
+                    textBoxErrorForecast.Visible = true;
+                    break;
+                case 3://Уровень тренда
+                    HideAllMethods();
+                    labelErrorIndc.Visible = true;
+                    textBoxErrorIndic.Visible = true;
+                    buttonSgladitb.Visible = true;
+                    labelMethodTrend.Visible = true;
+                    comboBoxMethods.Visible = true;
+
+                    PerfomAutoForecast.Visible = true;
+                    break;
+            }
+        }
+
         private void HideAllMethods()
     {
         labelErrorIndc.Visible = false;
@@ -646,6 +729,10 @@ namespace Forecast
         buttonSgladitb.Visible = false;
         labelErrorForecast.Visible = false;
         textBoxErrorForecast.Visible = false;
+        PerfomAutoForecast.Visible = false;
+
+            textBoxErrorIndic.ResetText();
+            textBoxErrorForecast.ResetText();
         if (!(chart1.Series.Count == 1))
         {
                 chart1.Series.RemoveAt(1);
@@ -715,23 +802,29 @@ namespace Forecast
                 {
                     if (dataGridView1.Rows[j].Cells[k].Value != null)
                         table.AddCell(new Phrase(Math.Round(Convert.ToDouble(dataGridView1.Rows[j].Cells[k].Value), 2).ToString(), fontParagraph));
+                    else
+                        table.AddCell(new Phrase(" ", fontParagraph));
                 }
             }
             //if (ComboBoxMethod.SelectedIndex != 1 && textBoxErrorIndic.Text != "")
                 //fileCSV += "Среднеквадратическая ошибка расчёта ;" + textBoxErrorIndic.Text + ";";
             //table.AddCell(new Phrase(Math.Round(Convert.ToDouble(textBoxErrorIndic.Text), 2).ToString(), fontParagraph));
             // table.AddCell(new Phrase("123", fontParagraph));
-            /*if (ComboBoxMethod.SelectedIndex == 2 && textBoxErrorForecast.Text != "")
-                fileCSV += "Ошибка прогноза ;" + textBoxErrorForecast.Text + ";";*/
+            /**/
 
             chart1.SaveImage(Application.StartupPath + @"\1.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
             iTextSharp.text.Image jpg = iTextSharp.text.Image.GetInstance(Application.StartupPath + @"/1.bmp");
             jpg.Alignment = iTextSharp.text.Image.ALIGN_CENTER;
-            //doc.NewPage();
-            doc.Add(jpg);
 
             //Добавляем таблицу в документ
             doc.Add(table);
+            if (ComboBoxMethod.SelectedIndex != 1 && textBoxErrorIndic.Text != "")
+                doc.Add(new Phrase("\n                         Среднеквадратическая ошибка прогноза: " + Math.Round(Convert.ToDouble(textBoxErrorIndic.Text), 3).ToString(), fontParagraph));
+            if (ComboBoxMethod.SelectedIndex == 2 && textBoxErrorForecast.Text != "")
+                doc.Add(new Phrase("\n                         Ошибка прогноза: " + Math.Round(Convert.ToDouble(textBoxErrorForecast.Text), 3).ToString(), fontParagraph));
+            doc.NewPage();
+            jpg.ScalePercent(80);
+            doc.Add(jpg);
             //Закрываем документ
             doc.Close();
 
@@ -768,5 +861,16 @@ namespace Forecast
             wr.Close();
             Process.Start("Forecast.csv");
         }
+
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Программа является курсовым проектом по предмету 'Инструментальные средства информационныхсистем'\n\nАвторы:\nПархоменко Дмитрий\nИгнатова Любовь \nСмирнов Максим\n\nCopyright 2019", "О программе");
+        }
+
     }
 }

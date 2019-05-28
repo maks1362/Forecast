@@ -136,7 +136,7 @@ namespace Forecast
 
             try
             {
-                string[] rows = File.ReadAllLines(FileName);//openFileDialog1.FileName);
+                string[] rows = File.ReadAllLines(FileName, Encoding.Default);//openFileDialog1.FileName);
                 if (rows.Length > 0)
                 {
                     //Временные переменные
